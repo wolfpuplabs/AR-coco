@@ -5,48 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Griffin AR Chat</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
-        #controls { 
-            position: absolute; bottom: 20px; width: 100%; display: flex; 
-            justify-content: center; z-index: 999; 
+        /* Overlay UI yang melayang di atas AR */
+        #ui-layer {
+            position: fixed; bottom: 50px; width: 100%; text-align: center; 
+            z-index: 99999; /* Pastikan selalu di atas */
         }
-        input { padding: 12px; width: 60%; border-radius: 10px; border: 1px solid #ccc; }
-        button { padding: 12px 20px; margin-left: 10px; border-radius: 10px; background: #4CAF50; color: white; border: none; }
+        input { padding: 15px; width: 60%; border-radius: 25px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        button { padding: 15px 25px; border-radius: 25px; background: #FF5722; color: white; border: none; }
     </style>
 </head>
 <body>
 
-    <div id="controls">
-        <input type="text" id="msg" placeholder="Tulis pesan untuk Griffin...">
+    <div id="ui-layer">
+        <input type="text" id="msg" placeholder="Ketik pesan untuk Griffin...">
         <button onclick="updateText()">Kirim</button>
     </div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
-        
+    <a-scene webxr="requiredFeatures: hit-test, local-floor;" renderer="colorManagement: true;">
+        <a-camera position="0 1.6 0"></a-camera>
+
         <a-entity id="griffin" 
                   gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
                   scale="0.2 0.2 0.2" 
-                  position="0 -1 -2"
+                  visible="false"
                   animation-mixer>
             
             <a-plane position="0 8 0" width="10" height="3" color="#ffffff" opacity="0.9"></a-plane>
-            
             <a-text id="chat-text" value="Halo!" position="0 8 0.1" align="center" color="black" scale="6 6 6"></a-text>
         </a-entity>
 
-        <a-camera></a-camera>
+        <a-entity id="reticle" ar-hit-test="target:#griffin;" cursor="rayOrigin: mouse"></a-entity>
     </a-scene>
 
     <script>
+        const griffin = document.querySelector('#griffin');
+        const reticle = document.querySelector('#reticle');
+
+        reticle.addEventListener('hit', (e) => {
+            griffin.setAttribute('visible', true);
+            griffin.object3D.position.set(e.detail.position.x, e.detail.position.y, e.detail.position.z);
+        });
+
         function updateText() {
             const val = document.getElementById('msg').value;
             if(val) {
                 document.getElementById('chat-text').setAttribute('value', val);
-                document.getElementById('msg').value = '';
             }
         }
     </script>
