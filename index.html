@@ -1,32 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     <style>
-        #ui { position: absolute; bottom: 20px; width: 100%; text-align: center; z-index: 10; }
-        input { padding: 10px; width: 70%; }
+        #ui { position: absolute; bottom: 30px; width: 100%; text-align: center; z-index: 100; }
+        input { padding: 10px; width: 60%; border-radius: 10px; border: none; }
     </style>
 </head>
-<body style="margin: 0; overflow: hidden;">
+<body>
 
     <div id="ui">
         <input type="text" id="msg" placeholder="Pesan untuk Griffin...">
         <button onclick="updateText()">Kirim</button>
     </div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-scene webxr="requiredFeatures: hit-test, local-floor;" renderer="colorManagement: true;">
         
-        <a-entity id="griffin" gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
-                  scale="0.2 0.2 0.2" position="0 -1 -2">
-            <a-text id="chat-text" value="Halo!" position="0 2 0" align="center" color="white" scale="3 3 3"></a-text>
+        <a-camera position="0 0 0"></a-camera>
+
+        <a-entity id="griffin" 
+                  gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
+                  scale="0.2 0.2 0.2" 
+                  visible="false"
+                  animation-mixer>
+            
+            <a-text id="chat-text" value="Halo!" position="0 5 0" align="center" color="white" scale="8 8 8"></a-text>
         </a-entity>
 
-        <a-camera></a-camera>
+        <a-entity id="reticle" ar-hit-test="target:#griffin;" cursor="rayOrigin: mouse"></a-entity>
+
     </a-scene>
 
     <script>
+        const griffin = document.querySelector('#griffin');
+        const reticle = document.querySelector('#reticle');
+
+        // Saat lantai di-tap, Griffin pindah ke sana dan muncul
+        reticle.addEventListener('hit', (e) => {
+            griffin.setAttribute('visible', true);
+            griffin.object3D.position.set(e.detail.position.x, e.detail.position.y, e.detail.position.z);
+        });
+
         function updateText() {
             const val = document.getElementById('msg').value;
             document.getElementById('chat-text').setAttribute('value', val);
