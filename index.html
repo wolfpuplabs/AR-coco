@@ -8,23 +8,21 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     
     <style>
-        /* Overlay UI yang melayang di atas AR */
-        #ui-layer {
-            position: fixed; bottom: 50px; width: 100%; text-align: center; 
-            z-index: 99999; /* Pastikan selalu di atas */
-        }
-        input { padding: 15px; width: 60%; border-radius: 25px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        button { padding: 15px 25px; border-radius: 25px; background: #FF5722; color: white; border: none; }
+        body { margin: 0; font-family: sans-serif; background: #2c3e50; color: white; text-align: center; padding: 20px; }
+        #input-container { margin: 50px auto; max-width: 400px; }
+        input { padding: 15px; width: 100%; border-radius: 10px; border: none; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 15px 30px; background: #e74c3c; border: none; border-radius: 20px; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="ui-layer">
-        <input type="text" id="msg" placeholder="Ketik pesan untuk Griffin...">
-        <button onclick="updateText()">Kirim</button>
+    <div id="input-container">
+        <h1>Kirim Pesan ke Griffin</h1>
+        <input type="text" id="userMsg" placeholder="Tulis sesuatu...">
+        <button id="start-ar">Lihat Griffin di AR</button>
     </div>
 
-    <a-scene webxr="requiredFeatures: hit-test, local-floor;" renderer="colorManagement: true;">
+    <a-scene id="ar-scene" webxr="requiredFeatures: hit-test, local-floor;" style="display:none;">
         <a-camera position="0 1.6 0"></a-camera>
 
         <a-entity id="griffin" 
@@ -43,18 +41,23 @@
     <script>
         const griffin = document.querySelector('#griffin');
         const reticle = document.querySelector('#reticle');
+        const chatText = document.querySelector('#chat-text');
 
+        // Saat tombol ditekan, simpan pesan ke text Griffin lalu masuk AR
+        document.getElementById('start-ar').addEventListener('click', () => {
+            const msg = document.getElementById('userMsg').value || "Halo!";
+            chatText.setAttribute('value', msg);
+            
+            // Sembunyikan input, tampilkan AR
+            document.getElementById('input-container').style.display = 'none';
+            document.getElementById('ar-scene').style.display = 'block';
+        });
+
+        // Saat lantai di-tap di mode AR
         reticle.addEventListener('hit', (e) => {
             griffin.setAttribute('visible', true);
             griffin.object3D.position.set(e.detail.position.x, e.detail.position.y, e.detail.position.z);
         });
-
-        function updateText() {
-            const val = document.getElementById('msg').value;
-            if(val) {
-                document.getElementById('chat-text').setAttribute('value', val);
-            }
-        }
     </script>
 </body>
 </html>
