@@ -3,48 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WebAR Dragon Pet</title>
+    <title>AR Dragon Pet Adventure</title>
+    
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; }
         
-        #ui-layer {
-            position: absolute; top: 20px; width: 100%; text-align: center; 
-            z-index: 100; pointer-events: none; color: white; text-shadow: 1px 1px 2px black;
+        #ui-overlay {
+            position: absolute; top: 20px; width: 100%; text-align: center;
+            z-index: 999; color: white; pointer-events: none;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        #chat-box { 
-            position: absolute; bottom: 30px; width: 100%; text-align: center; 
-            z-index: 200; /* Dibuat lebih tinggi agar tetap bisa diklik */
-            pointer-events: auto; /* Memastikan input bisa diinteraksi */
+        #controls {
+            position: absolute; bottom: 30px; width: 100%; display: flex;
+            justify-content: center; gap: 10px; z-index: 1000;
         }
 
-        input { padding: 10px; width: 60%; border-radius: 5px; border: none; }
-        button { padding: 10px; border-radius: 5px; border: none; background: #4CAF50; color: white; cursor: pointer; }
+        input { padding: 12px; border-radius: 20px; border: none; width: 60%; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        button { padding: 12px 20px; border-radius: 20px; border: none; background: #FF5722; color: white; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="ui-layer">
-        <h2 id="status">Tap layar untuk memunculkan telur</h2>
+    <div id="ui-overlay">
+        <h1>Naga AR-ku</h1>
+        <p>Arahkan kamera ke lantai & tap untuk menaruh naga</p>
     </div>
 
-    <div id="chat-box">
-        <input type="text" id="userInput" placeholder="Tulis pesan untuk naga...">
-        <button onclick="updateBubble()">Kirim</button>
+    <div id="controls">
+        <input type="text" id="chatInput" placeholder="Ketik pesan...">
+        <button onclick="sendChat()">Kirim</button>
     </div>
 
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
+    <a-scene embedded arjs="sourceType: webcam; detectionMode: mono; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
         
-        <a-camera>
-            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
-        </a-camera>
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-        <a-entity id="dragon-container" class="clickable" cursor="rayOrigin: mouse">
-            <a-entity id="griffin.glb" gltf-model="models/griffin.glb" scale="0.5 0.5 0.5" visible="false">
-                <a-text id="chat-bubble" value="" position="0 2 0" align="center" color="white" scale="2 2 2" side="double"></a-text>
+        <a-entity id="dragon-anchor" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+            <a-entity id="griffin" gltf-model="models/griffin.glb" scale="0.3 0.3 0.3" visible="false">
+                <a-plane position="0 2 0" width="2" height="0.6" color="#ffffff" opacity="0.8">
+                    <a-text id="chat-bubble" value="Halo!" position="0 0 0.1" align="center" color="black" scale="1.5 1.5 1.5"></a-text>
+                </a-plane>
             </a-entity>
         </a-entity>
 
@@ -52,32 +54,25 @@
 
     <script>
         const dragon = document.querySelector('#dragon');
-        const statusText = document.querySelector('#status');
+        const chatInput = document.querySelector('#chatInput');
         const chatBubble = document.querySelector('#chat-bubble');
 
-        // Event listener untuk memunculkan naga saat layar di-tap
-        document.querySelector('a-scene').addEventListener('click', () => {
+        // Logic memunculkan naga saat layar disentuh
+        document.querySelector('a-scene').addEventListener('click', function (e) {
             if (!dragon.getAttribute('visible')) {
                 dragon.setAttribute('visible', true);
-                statusText.innerText = "Naga sudah menetas!";
-                chatBubble.setAttribute('value', "Halo! Aku naga barumu!");
+                // Di sini nanti bisa ditambahkan logika hit-test posisi
             }
         });
 
-        // Fungsi untuk update teks di balon percakapan
-        function updateBubble() {
-            const text = document.getElementById('userInput').value;
-            if(text) {
+        function sendChat() {
+            const text = chatInput.value;
+            if (text) {
                 chatBubble.setAttribute('value', text);
+                chatInput.value = '';
                 
-                // Opsional: Share ke sosmed
-                if (navigator.share) {
-                    navigator.share({
-                        title: 'Naga WebAR',
-                        text: 'Lihat nagaku bilang: ' + text,
-                        url: window.location.href
-                    });
-                }
+                // Animasi sederhana: Naga melompat kecil saat di-chat
+                dragon.setAttribute('animation', 'property: position; to: 0 0.2 0; dur: 500; dir: alternate; loop: 1');
             }
         }
     </script>
