@@ -1,52 +1,35 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; }
-        #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: red; z-index: 9999; }
-        #controls { position: absolute; bottom: 20px; width: 100%; z-index: 9999; text-align: center; }
+        #ui { position: absolute; bottom: 20px; width: 100%; text-align: center; z-index: 10; }
+        input { padding: 10px; width: 70%; }
     </style>
 </head>
-<body>
-    <div id="ui"><h2>Debug: Tap lantai untuk menaruh Naga</h2></div>
-    <div id="controls">
-        <input type="text" id="chatInput" placeholder="Tulis pesan...">
-        <button onclick="updateChat()">Kirim</button>
+<body style="margin: 0; overflow: hidden;">
+
+    <div id="ui">
+        <input type="text" id="msg" placeholder="Pesan untuk Griffin...">
+        <button onclick="updateText()">Kirim</button>
     </div>
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         
-        <a-entity id="dragon-anchor" cursor="rayOrigin: mouse">
-            <a-entity id="dragon" gltf-model="url(https://raw.githubusercontent.com/username/nama-repo/main/dragon.glb)" 
-          scale="0.5 0.5 0.5" position="0 0 -2" visible="false">
-    <a-text id="chat-text" value="Halo!" position="0 2 0" align="center" color="black" scale="2 2 2"></a-text>
-</a-entity>
-ble="false">
-                <a-text id="chat-text" value="Halo!" position="0 2 0" align="center" color="black" scale="2 2 2"></a-text>
-            </a-entity>
+        <a-entity id="griffin" gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
+                  scale="0.2 0.2 0.2" position="0 -1 -2">
+            <a-text id="chat-text" value="Halo!" position="0 2 0" align="center" color="white" scale="3 3 3"></a-text>
         </a-entity>
 
         <a-camera></a-camera>
     </a-scene>
 
     <script>
-        const dragon = document.querySelector('#dragon');
-        const ui = document.querySelector('#ui');
-
-        // Deteksi klik pada scene
-        document.querySelector('a-scene').addEventListener('click', () => {
-            dragon.setAttribute('visible', true);
-            ui.innerHTML = "Naga berhasil dipanggil!";
-            console.log("Tap terdeteksi!");
-        });
-
-        function updateChat() {
-            const val = document.getElementById('chatInput').value;
-            document.querySelector('#chat-text').setAttribute('value', val);
+        function updateText() {
+            const val = document.getElementById('msg').value;
+            document.getElementById('chat-text').setAttribute('value', val);
         }
     </script>
 </body>
