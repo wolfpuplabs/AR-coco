@@ -1,15 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>WebAR Dragon Pet</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    
     <style>
-        body { margin: 0; overflow: hidden; }
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        
         #ui-layer {
-            position: absolute; top: 10px; width: 100%; text-align: center; z-index: 999;
+            position: absolute; top: 20px; width: 100%; text-align: center; 
+            z-index: 100; pointer-events: none; color: white; text-shadow: 1px 1px 2px black;
         }
-        #chat-box { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+
+        #chat-box { 
+            position: absolute; bottom: 30px; width: 100%; text-align: center; 
+            z-index: 200; /* Dibuat lebih tinggi agar tetap bisa diklik */
+            pointer-events: auto; /* Memastikan input bisa diinteraksi */
+        }
+
+        input { padding: 10px; width: 60%; border-radius: 5px; border: none; }
+        button { padding: 10px; border-radius: 5px; border: none; background: #4CAF50; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -25,39 +38,46 @@
 
     <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
         
-        <a-entity id="dragon-container" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
-            <a-entity id="griffin" gltf-model="models/griffin.glb" scale="0.5 0.5 0.5" visible="false">
-                <a-text id="chat-bubble" value="Halo!" position="0 2 0" align="center" color="black" scale="2 2 2"></a-text>
+        <a-camera>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .clickable"></a-entity>
+        </a-camera>
+
+        <a-entity id="dragon-container" class="clickable" cursor="rayOrigin: mouse">
+            <a-entity id="dragon" gltf-model="url(path-to-your-dragon.glb)" scale="0.5 0.5 0.5" visible="false">
+                <a-text id="chat-bubble" value="" position="0 2 0" align="center" color="white" scale="2 2 2" side="double"></a-text>
             </a-entity>
         </a-entity>
 
-        <a-camera></a-camera>
     </a-scene>
 
     <script>
-        // Logika sederhana untuk memunculkan naga
-        const scene = document.querySelector('a-scene');
         const dragon = document.querySelector('#dragon');
+        const statusText = document.querySelector('#status');
         const chatBubble = document.querySelector('#chat-bubble');
 
-        scene.addEventListener('click', () => {
+        // Event listener untuk memunculkan naga saat layar di-tap
+        document.querySelector('a-scene').addEventListener('click', () => {
             if (!dragon.getAttribute('visible')) {
                 dragon.setAttribute('visible', true);
-                document.getElementById('status').innerText = "Naga muncul!";
+                statusText.innerText = "Naga sudah menetas!";
+                chatBubble.setAttribute('value', "Halo! Aku naga barumu!");
             }
         });
 
+        // Fungsi untuk update teks di balon percakapan
         function updateBubble() {
             const text = document.getElementById('userInput').value;
-            chatBubble.setAttribute('value', text);
-            
-            // Logika Share (Sederhana menggunakan Web Share API)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Dragon Pet',
-                    text: 'Lihat nagaku bilang: ' + text,
-                    url: window.location.href,
-                });
+            if(text) {
+                chatBubble.setAttribute('value', text);
+                
+                // Opsional: Share ke sosmed
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Naga WebAR',
+                        text: 'Lihat nagaku bilang: ' + text,
+                        url: window.location.href
+                    });
+                }
             }
         }
     </script>
