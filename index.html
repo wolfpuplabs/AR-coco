@@ -1,33 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>WebAR Dragon Pet</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
         body { margin: 0; overflow: hidden; }
-        #ui-layer {
-            position: absolute; top: 10px; width: 100%; text-align: center; z-index: 999;
-        }
-        #chat-box { position: absolute; bottom: 20px; width: 100%; text-align: center; }
+        #ui { position: absolute; top: 10px; width: 100%; text-align: center; color: red; z-index: 9999; }
+        #controls { position: absolute; bottom: 20px; width: 100%; z-index: 9999; text-align: center; }
     </style>
 </head>
 <body>
-
-    <div id="ui-layer">
-        <h2 id="status">Tap layar untuk memunculkan telur</h2>
+    <div id="ui"><h2>Debug: Tap lantai untuk menaruh Naga</h2></div>
+    <div id="controls">
+        <input type="text" id="chatInput" placeholder="Tulis pesan...">
+        <button onclick="updateChat()">Kirim</button>
     </div>
 
-    <div id="chat-box">
-        <input type="text" id="userInput" placeholder="Tulis pesan untuk naga...">
-        <button onclick="updateBubble()">Kirim</button>
-    </div>
-
-    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="logarithmicDepthBuffer: true;">
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         
-        <a-entity id="dragon-container" cursor="rayOrigin: mouse" raycaster="objects: .clickable">
-            <a-entity id="griffin" gltf-model="url(https://github.com/wolfpuplabs/AR-coco/blob/f1d529ec5ea31522dd8cf75501d362fd1f94a21b/griffin.glb)" scale="0.5 0.5 0.5" visible="false">
-                <a-text id="chat-bubble" value="Halo!" position="0 2 0" align="center" color="black" scale="2 2 2"></a-text>
+        <a-entity id="dragon-anchor" cursor="rayOrigin: mouse">
+            <a-entity id="dragon" gltf-model="url(https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF-Binary/Duck.glb)" 
+                      scale="0.2 0.2 0.2" position="0 0 -2" visible="false">
+                <a-text id="chat-text" value="Halo!" position="0 2 0" align="center" color="black" scale="2 2 2"></a-text>
             </a-entity>
         </a-entity>
 
@@ -35,30 +31,19 @@
     </a-scene>
 
     <script>
-        // Logika sederhana untuk memunculkan naga
-        const scene = document.querySelector('a-scene');
         const dragon = document.querySelector('#dragon');
-        const chatBubble = document.querySelector('#chat-bubble');
+        const ui = document.querySelector('#ui');
 
-        scene.addEventListener('click', () => {
-            if (!dragon.getAttribute('visible')) {
-                dragon.setAttribute('visible', true);
-                document.getElementById('status').innerText = "Naga muncul!";
-            }
+        // Deteksi klik pada scene
+        document.querySelector('a-scene').addEventListener('click', () => {
+            dragon.setAttribute('visible', true);
+            ui.innerHTML = "Naga berhasil dipanggil!";
+            console.log("Tap terdeteksi!");
         });
 
-        function updateBubble() {
-            const text = document.getElementById('userInput').value;
-            chatBubble.setAttribute('value', text);
-            
-            // Logika Share (Sederhana menggunakan Web Share API)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'My Dragon Pet',
-                    text: 'Lihat nagaku bilang: ' + text,
-                    url: window.location.href,
-                });
-            }
+        function updateChat() {
+            const val = document.getElementById('chatInput').value;
+            document.querySelector('#chat-text').setAttribute('value', val);
         }
     </script>
 </body>
