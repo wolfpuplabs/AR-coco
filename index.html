@@ -3,40 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebXR Griffin AR</title>
-    
+    <title>Hatch Your Dragon</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     
     <style>
-        body { margin: 0; overflow: hidden; }
-        #ui { 
-            position: absolute; bottom: 30px; width: 100%; text-align: center; 
-            z-index: 10; pointer-events: none; color: white; 
-            font-family: sans-serif; text-shadow: 1px 1px 2px black;
+        #start-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50; color: white; display: flex;
+            flex-direction: column; justify-content: center; align-items: center;
+            z-index: 9999;
         }
+        button { padding: 20px 40px; font-size: 20px; border-radius: 30px; border: none; background: #e74c3c; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <h2>WebXR Griffin AR</h2>
-        <p>Arahkan kamera ke lantai & tap untuk menaruh Griffin</p>
+    <div id="start-overlay">
+        <h1>Temukan Naga-mu</h1>
+        <button id="start-btn">TAP UNTUK MENETASKAN TELUR</button>
     </div>
 
-    <a-scene webxr="optionalFeatures: hit-test, local-floor;" 
-             renderer="colorManagement: true;">
-        
+    <a-scene webxr="requiredFeatures: hit-test, local-floor;" id="scene" renderer="colorManagement: true;">
         <a-camera position="0 1.6 0"></a-camera>
-
-        <a-entity id="griffin" 
-                  gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
-                  scale="0.5 0.5 0.5" 
-                  position="0 0 -1"
-                  animation-mixer="clip: *; loop: repeat; autoplay: true;">
-        </a-entity>
-
+        <a-entity id="griffin" gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
+                  scale="0.3 0.3 0.3" visible="false" animation-mixer></a-entity>
+        <a-entity id="reticle" ar-hit-test="target:#griffin;" cursor="rayOrigin: mouse"></a-entity>
     </a-scene>
 
+    <script>
+        // Logika untuk menembus overlay dan masuk ke mode AR
+        document.getElementById('start-btn').addEventListener('click', () => {
+            document.getElementById('start-overlay').style.display = 'none';
+            // Pemicu WebXR akan otomatis muncul setelah overlay hilang jika user mengklik tombol ini
+        });
+
+        const griffin = document.querySelector('#griffin');
+        const reticle = document.querySelector('#reticle');
+
+        reticle.addEventListener('hit', (e) => {
+            if(!griffin.getAttribute('visible')){
+                griffin.setAttribute('visible', true);
+                griffin.object3D.position.set(e.detail.position.x, e.detail.position.y, e.detail.position.z);
+            }
+        });
+    </script>
 </body>
 </html>
