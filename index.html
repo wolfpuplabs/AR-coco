@@ -4,59 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Griffin AR Chat</title>
-    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.0.1/model-viewer.min.js"></script>
     
     <style>
-        body { margin: 0; font-family: sans-serif; background: #2c3e50; color: white; text-align: center; padding: 20px; }
-        #input-container { margin: 50px auto; max-width: 400px; }
-        input { padding: 15px; width: 100%; border-radius: 10px; border: none; box-sizing: border-box; }
-        button { margin-top: 20px; padding: 15px 30px; background: #e74c3c; border: none; border-radius: 20px; color: white; font-weight: bold; }
+        body { font-family: sans-serif; text-align: center; background: #2c3e50; color: white; padding: 20px; }
+        #input-section { margin-top: 50px; }
+        input { padding: 15px; width: 80%; border-radius: 10px; border: none; font-size: 16px; }
+        #ar-btn { margin-top: 20px; padding: 20px 40px; background: #e74c3c; border: none; border-radius: 30px; color: white; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="input-container">
-        <h1>Kirim Pesan ke Griffin</h1>
-        <input type="text" id="userMsg" placeholder="Tulis sesuatu...">
-        <button id="start-ar">Lihat Griffin di AR</button>
+    <h1>AR Griffin Chat</h1>
+    
+    <div id="input-section">
+        <input type="text" id="chatInput" placeholder="Ketik pesan untuk Griffin...">
+        <br>
+        <model-viewer 
+            id="griffin-viewer"
+            src="https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb" 
+            ar 
+            ar-modes="quick-look" 
+            camera-controls 
+            style="width: 100%; height: 300px; display: none;">
+            
+            <button slot="ar-button" id="ar-btn">
+                Lihat Griffin Beraksi!
+            </button>
+        </model-viewer>
     </div>
 
-    <a-scene id="ar-scene" webxr="requiredFeatures: hit-test, local-floor;" style="display:none;">
-        <a-camera position="0 1.6 0"></a-camera>
-
-        <a-entity id="griffin" 
-                  gltf-model="url(https://raw.githubusercontent.com/wolfpuplabs/AR-coco/main/griffin.glb)" 
-                  scale="0.2 0.2 0.2" 
-                  visible="false"
-                  animation-mixer>
-            
-            <a-plane position="0 8 0" width="10" height="3" color="#ffffff" opacity="0.9"></a-plane>
-            <a-text id="chat-text" value="Halo!" position="0 8 0.1" align="center" color="black" scale="6 6 6"></a-text>
-        </a-entity>
-
-        <a-entity id="reticle" ar-hit-test="target:#griffin;" cursor="rayOrigin: mouse"></a-entity>
-    </a-scene>
-
     <script>
-        const griffin = document.querySelector('#griffin');
-        const reticle = document.querySelector('#reticle');
-        const chatText = document.querySelector('#chat-text');
+        const input = document.getElementById('chatInput');
+        const viewer = document.getElementById('griffin-viewer');
 
-        // Saat tombol ditekan, simpan pesan ke text Griffin lalu masuk AR
-        document.getElementById('start-ar').addEventListener('click', () => {
-            const msg = document.getElementById('userMsg').value || "Halo!";
-            chatText.setAttribute('value', msg);
-            
-            // Sembunyikan input, tampilkan AR
-            document.getElementById('input-container').style.display = 'none';
-            document.getElementById('ar-scene').style.display = 'block';
-        });
-
-        // Saat lantai di-tap di mode AR
-        reticle.addEventListener('hit', (e) => {
-            griffin.setAttribute('visible', true);
-            griffin.object3D.position.set(e.detail.position.x, e.detail.position.y, e.detail.position.z);
+        // Munculkan tombol AR setelah user mengetik
+        input.addEventListener('input', () => {
+            if(input.value.length > 0) {
+                viewer.style.display = 'block';
+                // Update title di AR agar pesan user terbaca di atas AR Apple
+                viewer.setAttribute('ar-title', 'Pesan: ' + input.value);
+            }
         });
     </script>
 </body>
